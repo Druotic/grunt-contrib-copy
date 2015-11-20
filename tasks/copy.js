@@ -27,6 +27,7 @@ module.exports = function(grunt) {
     });
 
     var copyOptions = {
+      keepSymLinks: options.keepSymLinks,
       encoding: options.encoding,
       process: options.process || options.processContent,
       noProcess: options.noProcess || options.processContentExclude,
@@ -50,7 +51,7 @@ module.exports = function(grunt) {
           dest = (isExpandedPair) ? dest : path.join(dest, src);
         }
 
-        if (grunt.file.isDir(src)) {
+        if (grunt.file.isDir(src) && !(copyOptions.keepSymLinks && grunt.file.isLink(src))) {
           grunt.verbose.writeln('Creating ' + chalk.cyan(dest));
           grunt.file.mkdir(dest);
           if (options.mode !== false) {
