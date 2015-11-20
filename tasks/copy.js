@@ -25,6 +25,7 @@ module.exports = function(grunt) {
     });
 
     var copyOptions = {
+      keepSymLinks: options.keepSymLinks,
       encoding: options.encoding,
       process: options.process || options.processContent,
       noProcess: options.noProcess || options.processContentExclude,
