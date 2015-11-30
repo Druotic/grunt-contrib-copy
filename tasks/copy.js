@@ -40,10 +40,12 @@ module.exports = function(grunt) {
       files: 0,
     };
 
+    // console.log('options???', copyOptions);
     this.files.forEach(function(filePair) {
       isExpandedPair = filePair.orig.expand || false;
 
       filePair.src.forEach(function(src) {
+        console.log('matched path', src);
         src = unixifyPath(src);
         var dest = unixifyPath(filePair.dest);
 
@@ -51,9 +53,23 @@ module.exports = function(grunt) {
           dest = (isExpandedPair) ? dest : path.join(dest, src);
         }
 
-        if (grunt.file.isDir(src) && !(copyOptions.keepSymLinks && grunt.file.isLink(src))) {
-          grunt.verbose.writeln('Creating ' + chalk.cyan(dest));
-          grunt.file.mkdir(dest);
+        // if (copyOptions.keepSymLink && grunt.file.isLink(src)) {
+        //   grunt.verbose.writeln('Copying sym link ' + chalk.cyan(src) + ' -> ' + chalk.cyan(dest));
+        //   grunt.file.copy(src, dest, copyOptions);
+        //   return;
+        // }
+
+        if (grunt.file.isDir(src)) { //&& !(copyOptions.keepSymLinks && grunt.file.isLink(src))) {
+          // console.log('pre isLink');
+          // console.log('keepSymLink:', copyOptions.keepSymLinks);
+          // console.log('isLink:', grunt.file.isLink(src));
+          if (copyOptions.keepSymLinks && grunt.file.isLink(src)) {
+            grunt.verbose.writeln('Copying directory symbolic link ' + chalk.cyan(dest));
+            grunt.file.copy(src, dest, copyOptions);
+          } else {
+            grunt.verbose.writeln('Creating (dir) ' + chalk.cyan(dest));
+            grunt.file.mkdir(dest);
+          }
           if (options.mode !== false) {
             fs.chmodSync(dest, (options.mode === true) ? fs.lstatSync(src).mode : options.mode);
           }
@@ -64,9 +80,13 @@ module.exports = function(grunt) {
 
           tally.dirs++;
         } else {
-          grunt.verbose.writeln('Copying ' + chalk.cyan(src) + ' -> ' + chalk.cyan(dest));
+          console.log('isFile, isLink', grunt.file.isFile(src), grunt.file.isLink(src));
+          grunt.verbose.writeln('Copying file ' + chalk.cyan(src) + ' -> ' + chalk.cyan(dest));
+          
           grunt.file.copy(src, dest, copyOptions);
-          syncTimestamp(src, dest);
+          if (!grunt.file.isLink(src)) {
+            syncTimestamp(src, dest);
+          }
           if (options.mode !== false) {
             fs.chmodSync(dest, (options.mode === true) ? fs.lstatSync(src).mode : options.mode);
           }

@@ -117,7 +117,22 @@ module.exports = function(grunt) {
             {expand: true, cwd: 'test/fixtures/time_folder/', src: ['**'], dest: 'tmp/copy_test_timestamp/'},
             {src: 'test/fixtures/time_folder/test.js', dest:'tmp/copy_test_timestamp/test1.js'}
         ]
+      },
+
+      keepSymLinks: {
+        options: {
+          keepSymLinks: true
+        },
+        files: [
+          {
+            expand: true,
+            cwd: 'test/fixtures/sym_links_folder',
+            src: ['**'],
+            dest: 'tmp/copy_test_keepSymLinks'
+          }
+        ]
       }
+
     },
 
     // Unit tests.

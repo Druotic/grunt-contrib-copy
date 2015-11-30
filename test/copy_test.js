@@ -2,6 +2,7 @@
 
 var grunt = require('grunt');
 var fs = require('fs');
+var path = require('path');
 
 exports.copy = {
   main: function(test) {
@@ -84,6 +85,32 @@ exports.copy = {
     test.equal(fs.lstatSync('tmp/copy_test_timestamp/test.js').mtime.getTime(), fs.lstatSync('test/fixtures/time_folder/test.js').mtime.getTime());
     test.notEqual(fs.lstatSync('tmp/copy_test_timestamp/test1.js').mtime.getTime(), fs.lstatSync('test/fixtures/time_folder/test.js').mtime.getTime());
     test.notEqual(fs.lstatSync('tmp/copy_test_timestamp/test_process.js').mtime.getTime(), fs.lstatSync('test/fixtures/time_folder/test_process.js').mtime.getTime());
+
+    test.done();
+  },
+
+  keepSymLinks: function(test) {
+    test.expect(5);
+    console.log('begin keepSymLinks tests...');
+    console.log(fs.lstatSync('tmp/copy_test_keepSymLinks'));
+    console.log('---');
+    console.log(fs.readdirSync('tmp/copy_test_keepSymLinks/sub_folder1'));
+
+    var actual, expected;
+    var dirPaths = [
+      '',
+      'sub_folder1',
+      'sub_folder1/sub_folder2_symlink',
+      'sub_folder2/',
+      'sub_folder2/sub_sub_folder2'
+    ];
+
+    for (var idx = 0; idx < dirPaths.length; idx++) {
+      var filepath = dirPaths[idx];
+      actual = fs.readdirSync(path.join('tmp/copy_test_keepSymLinks', filepath)).sort();
+      expected = fs.readdirSync(path.join('test/expected/copy_test_keepSymLinks', filepath)).sort();
+      test.deepEqual(actual, expected, 'directory\'s file names (regular files and sym links) should be the same');
+    }
 
     test.done();
   }
